@@ -1,0 +1,36 @@
+{
+  "name": "nodejs-di-container",
+  "version": "0.1.0",
+  "description": "Inversion of Control Container. Implements Dependency Injection pattern. ",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vdubyna/nodejs-di-container.git"
+  },
+  "keywords": [
+    "nodejs",
+    "di",
+    "dependency",
+    "injection"
+  ],
+  "author": "vladimir.dubyna@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vdubyna/nodejs-di-container/issues"
+  },
+  "homepage": "https://github.com/vdubyna/nodejs-di-container#readme",
+  "dependencies": {
+    "dwell": "^1.0.0",
+    "lodash": "^4.17.4"
+  },
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "mocha": "^3.2.0"
+  }
+}
