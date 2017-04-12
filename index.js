@@ -58,7 +58,7 @@ class Ioc {
    * @param libName
    * @returns {Object}
    */
-  use (libName) {
+  get (libName) {
     if (this.objects.has(libName)) {
       return this.objects.get(libName)
     }
@@ -66,7 +66,7 @@ class Ioc {
     let NewLib = this._autoload(libName)
 
     let dependencies = _.map(dwell.inspect(NewLib), (injection) => {
-      return this.use(injection)
+      return this.get(injection)
     })
 
     return new NewLib(...dependencies)
@@ -110,7 +110,7 @@ class Ioc {
    */
   _makeNewLib (newLib) {
     let dependencies = _.map(dwell.inspect(newLib), (injection) => {
-      return this.use(injection)
+      return this.get(injection)
     })
 
     return this.injector(newLib, dependencies)
