@@ -1,27 +1,28 @@
-let _ = require('lodash')
-let dwell = require('dwell')
+const _ = require('lodash');
+const dwell = require('dwell');
+const path = require('path');
 
 class Ioc {
   /**
    *
    * @param config
    */
-  Constructor (config = {}) {
-    this.appPath = config.appPath
+  constructor (config = {}) {
+    this.appPath = config.appPath;
 
-    this.classes = new Map()
-    this.objects = new Map()
-    this.aliases = new Map()
+    this.classes = new Map();
+    this.objects = new Map();
+    this.aliases = new Map();
 
     _.map(config.aliases, (className, aliasName) => {
-      this.aliases.set(aliasName, className)
-    })
+      this.aliases.set(aliasName, className);
+    });
     _.map(config.classes, (classInstance, classKey) => {
-      this.classes.set(classKey, classInstance)
-    })
+      this.classes.set(classKey, classInstance);
+    });
     _.map(config.objects, (objectInstance, objectKey) => {
-      this.objects.set(objectKey, objectInstance)
-    })
+      this.objects.set(objectKey, objectInstance);
+    });
   }
 
   /**
@@ -36,20 +37,20 @@ class Ioc {
    */
   make (libName, dependencies = [], injector = false) {
     if (!this.classes.has(libName)) {
-      throw new Error(`Class ${libName} is not registered`)
+      throw new Error(`Class ${libName} is not registered`);
     }
 
-    let newLib = this.classes.get(libName)
+    let newLib = this.classes.get(libName);
 
     if (!_.isEmpty(dependencies) && injector === false) {
-      return this.injector(newLib, dependencies)
+      return this.injector(newLib, dependencies);
     }
 
     if (!_.isEmpty(dependencies) && _.isFunction(injector)) {
-      return injector(dependencies)
+      return injector(dependencies);
     }
 
-    return this._makeNewLib(newLib)
+    return this._makeNewLib(newLib);
   }
 
   /**
@@ -60,16 +61,14 @@ class Ioc {
    */
   get (libName) {
     if (this.objects.has(libName)) {
-      return this.objects.get(libName)
+      return this.objects.get(libName);
     }
 
-    let NewLib = this._autoload(libName)
+    let NewLib = this._autoload(libName);
 
-    let dependencies = _.map(dwell.inspect(NewLib), (injection) => {
-      return this.get(injection)
-    })
+    let dependencies = _.map(dwell.inspect(NewLib), (injection) => this.get(injection));
 
-    return new NewLib(...dependencies)
+    return new NewLib(...dependencies);
   }
 
   /**
@@ -81,13 +80,13 @@ class Ioc {
   register (libName, fn) {
     // If function or class - set to classes
     if (_.isFunction(fn)) {
-      this.classes.set(libName, fn)
-      return this
+      this.classes.set(libName, fn);
+      return this;
     }
 
     // If object/string/array - set to objects
-    this.objects.set(libName, fn)
-    return this
+    this.objects.set(libName, fn);
+    return this;
   }
 
   /**
@@ -97,7 +96,7 @@ class Ioc {
    * @returns {*}
    */
   static injector (NewLib, dependencies) {
-    return new NewLib(...dependencies)
+    return new NewLib(...dependencies);
   }
 
   /**
@@ -109,11 +108,9 @@ class Ioc {
    * @private
    */
   _makeNewLib (newLib) {
-    let dependencies = _.map(dwell.inspect(newLib), (injection) => {
-      return this.get(injection)
-    })
+    let dependencies = _.map(dwell.inspect(newLib), (injection) => this.get(injection));
 
-    return this.injector(newLib, dependencies)
+    return this.injector(newLib, dependencies);
   };
 
   /**
@@ -124,20 +121,21 @@ class Ioc {
    * @private
    */
   _autoload (libName) {
-    libName = this._filterLibName(libName)
+    libName = this._filterLibName(libName);
 
     try {
       // Try load registered library or core library
       if (this.classes.has(libName)) {
-        return this.classes.get(libName)
+        return this.classes.get(libName);
       }
-      this.classes.set(libName, require(libName))
+
+      this.classes.set(libName, require(libName));
     } catch (e) {
       // Try load app library
-      this.classes.set(libName, this._autoloadAppLibrary(libName))
+      this.classes.set(libName, this._autoloadAppLibrary(libName));
     }
 
-    return this.classes.get(libName)
+    return this.classes.get(libName);
   }
 
   /**
@@ -147,12 +145,13 @@ class Ioc {
    * @private
    */
   _autoloadAppLibrary (libName) {
-    libName = this._filterLibName(libName)
+    libName = this._filterLibName(libName);
 
+    let libPath = path.resolve(this.appPath, libName.replace(/([a-zA-Z])(?=[A-Z])/g, '$1/'));
     try {
-      return require(this.appPath + libName.replace('_', '/'))
+      return require(libPath);
     } catch (e) {
-      throw new Error(`${libName} could not be loaded`)
+      throw new Error(`${libName} could not be loaded from ${libPath}`);
     }
   };
 
@@ -163,8 +162,8 @@ class Ioc {
    * @private
    */
   _filterLibName (libName) {
-    return (this.aliases.has(libName)) ? this.aliases.get(libName) : libName
+    return (this.aliases.has(libName)) ? this.aliases.get(libName) : libName;
   }
 }
 
-module.exports = Ioc
+module.exports = Ioc;
