@@ -20,7 +20,7 @@
     "injection"
   ],
   "author": "vladimir.dubyna@gmail.com",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/vdubyna/nodejs-di-container/issues"
   },
